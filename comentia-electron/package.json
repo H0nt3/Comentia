@@ -1,10 +1,27 @@
-"build": {
-  "asar": true,
-  "compression": "maximum",
-  "files": [
-    "dist/**/*",
-    "backend/**/*",
-    "main.js",
-    "preload.js"
-  ]
+{
+  "name": "comentia",
+  "version": "2.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux"
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.0.0"
+  },
+  "build": {
+    "appId": "com.H0nt3.comentia",
+    "productName": "Comentia",
+    "files": [
+      "**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"]
+    }
+  }
 }

@@ -1,0 +1,136 @@
+[MASTER]
+# Permitir extensiones de PyQt5
+extension-pkg-allow-list=PyQt5,PyQt5.QtCore,PyQt5.QtWidgets,PyQt5.QtGui
+
+# Ignorar archivos de prueba y directorios virtuales
+ignore=venv,env,.venv,__pycache__,build,dist
+
+# Usar Python 3
+py-version=3.9
+
+[MESSAGES CONTROL]
+# Deshabilitar verificaciones problemáticas para PyQt5
+disable=
+    # Errores comunes de PyQt
+    no-member,
+    import-error,
+    no-name-in-module,
+    too-many-ancestors,
+    too-many-public-methods,
+    too-many-instance-attributes,
+    too-few-public-methods,
+    
+    # Advertencias de estilo (opcional)
+    invalid-name,
+    missing-class-docstring,
+    missing-function-docstring,
+    missing-module-docstring,
+    too-many-lines,
+    line-too-long,
+    too-many-arguments,
+    too-many-locals,
+    too-many-branches,
+    too-many-statements,
+    
+    # Advertencias de variables
+    unused-argument,
+    unused-variable,
+    unused-import,
+    
+    # Deshabilitar para código simple
+    fixme,
+    broad-except,
+    bare-except
+
+# Generar salida más limpia
+reports=no
+score=no
+
+[BASIC]
+# Nombres permitidos (variables temporales comunes)
+good-names=i,j,k,ex,_,id,x,y,app
+
+# Constantes permitidas
+const-rgx=(([A-Z_][A-Z0-9_]*)|(__.*__))$
+
+# Clases permitidas (CamelCase)
+class-rgx=[A-Z_][a-zA-Z0-9]+$
+
+# Funciones permitidas (snake_case)
+function-rgx=[a-z_][a-z0-9_]{2,}$
+
+# Variables permitidas
+variable-rgx=[a-z_][a-z0-9_]{2,}$
+
+# Argumentos de métodos
+argument-rgx=[a-z_][a-z0-9_]{2,}$
+
+[DESIGN]
+# Máximo de atributos por clase (Qt tiene muchos)
+max-attributes=20
+
+# Máximo de métodos públicos (Qt tiene muchos)
+max-public-methods=80
+
+# Máximo de argumentos por función/constructor
+max-args=15
+
+# Máximo de herencia permitida (Qt hereda mucho)
+max-parents=10
+
+[FORMAT]
+# Longitud máxima de línea
+max-line-length=120
+
+# Longitud mínima de línea
+min-line-length=1
+
+# Espacio entre funciones
+max-blank-lines=2
+
+[SIMILARITIES]
+# Ignorar similitudes
+ignore-imports=yes
+min-similarity-lines=10
+
+[TYPECHECK]
+# No generar errores para miembros no definidos dinámicamente
+generated-members=
+    QApplication,
+    QMainWindow,
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QTextEdit,
+    QProgressBar,
+    QFileDialog,
+    QMessageBox,
+    QGroupBox,
+    QThread,
+    pyqtSignal,
+    .connect,
+    .disconnect,
+    .emit,
+    .exec_,
+    .show,
+    .quit,
+    .destroy,
+    .setStyleSheet,
+    .setMinimumSize,
+    .resize,
+    .setWindowTitle,
+    .setCentralWidget,
+    .addWidget,
+    .addLayout,
+    .setLayout,
+    .setVisible,
+    .setValue,
+    .setFormat,
+    .setReadOnly,
+    .append,
+    .text,
+    .strip,
+    .clicked

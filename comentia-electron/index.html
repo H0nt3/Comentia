@@ -1,39 +1,33 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Comentia</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-
-<div class="container">
-  <h1>📝 Comentia</h1>
-
-  <div class="card">
-    <input id="url" placeholder="Pega la URL de Marca.com..." />
-    <button onclick="run()">Descargar comentarios</button>
-  </div>
-
-  <div class="card">
-    <h3>📊 Progreso</h3>
-    <div class="progress-bar">
-      <div id="progress"></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>📄 Actividad</h3>
-    <pre id="log"></pre>
-  </div>
-</div>
-
 <script>
 function run() {
   const url = document.getElementById('url').value;
+  document.getElementById('log').textContent = "";
   window.api.runPython(url);
 }
-</script>
 
-</body>
-</html>
+window.addEventListener('py-event', (e) => {
+  const data = e.detail;
+  const log = document.getElementById('log');
+  const bar = document.getElementById('progress');
+
+  if (data.event === 'progress') {
+    bar.style.width = data.percent + '%';
+  }
+
+  if (data.event === 'start') {
+    log.textContent += "Inicio...\n";
+  }
+
+  if (data.event === 'done') {
+    log.textContent += "✔ " + data.message + "\n";
+  }
+
+  if (data.event === 'error') {
+    log.textContent += "❌ " + data.message + "\n";
+  }
+
+  if (data.current) {
+    log.textContent += `Página ${data.current}/${data.total}\n`;
+  }
+});
+</script>
