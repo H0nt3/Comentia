@@ -243,5 +243,3 @@ Developed with ❤️ for the Marca.com community
 </div>
 
 ---
-
-Si quieres, puedo darte una versión **más profesional (tipo proyecto top de GitHub)** con badges extra, TOC automático y screenshots.
