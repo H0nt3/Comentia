@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Comentia</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="container">
+  <h1>📝 Comentia</h1>
+
+  <div class="card">
+    <input id="url" placeholder="Pega la URL de Marca.com..." />
+    <button onclick="run()">Descargar comentarios</button>
+  </div>
+
+  <div class="card">
+    <h3>📊 Progreso</h3>
+    <div class="progress-bar">
+      <div id="progress"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📄 Actividad</h3>
+    <pre id="log"></pre>
+  </div>
+</div>
+
+<script>
+function run() {
+  const url = document.getElementById('url').value;
+  window.api.runPython(url);
+}
+</script>
+
+</body>
+</html>
