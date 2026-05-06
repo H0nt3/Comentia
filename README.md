@@ -2,46 +2,61 @@
 
 <div align="center">
 
-![Versión](https://img.shields.io/badge/versión-2.0.0-blue)
+![Versión](https://img.shields.io/badge/versión-3.0.0-blue)
 ![Python](https://img.shields.io/badge/python-3.9+-green)
 ![Licencia](https://img.shields.io/badge/licencia-MIT-orange)
-![Plataforma](https://img.shields.io/badge/plataforma-Windows%20%7C%20Linux%20%7C%20Mac-grey)
 
 **Extrae todos los comentarios de cualquier noticia de Marca.com de forma sencilla y rápida**
-
-[Español](#español) | [English](#english)
 
 </div>
 
 ---
 
-<a name="español"></a>
+## 📌 Tabla de contenidos
+  * 📖 [¿Qué es Comentia?](#-qué-es-comentia)
+  * ✨ [Características principales](#-características-principales)
+  * 📋 [Requisitos previos](#-requisitos-previos)
+  * 🚀 [Instalación](#-instalación)
+  * 🧑‍💻 [Guía de Uso](#-guía-de-uso)
+  * 📂 [Salida y archivos generados](#-salida-y-archivos-generados)
+  * 📊 [Estadísticas](#-estadísticas)
+  * 🛠️ [Estructura JSON](#-estructura-json)
+  * ❓ [Preguntas Frecuentes (FAQ)](#-preguntas-frecuentes-faq)
+  * 🐛 [Solución de problemas](#-solución-de-problemas)
+  * 🤝 [Contribuir](#-contribuir)
+  * 📄 [Licencia](#-licencia)
+  * ⭐ [Soporte y Créditos](#-soporte-y-créditos)
 
-## 🇪🇸 Español
-
+---
+<a name="qué-es-comentia"></a>
 ### 📖 ¿Qué es Comentia?
 
-**Comentia** es una herramienta fácil de usar que te permite **descargar y guardar todos los comentarios** de cualquier noticia de **Marca.com** en tu ordenador.
+**Comentia** es una herramienta diseñada para fácil de usar que te permite **extraer, guardar y analizar comentarios** de cualquier noticia de **Marca.com** en tu ordenador y de forma automatizada. Solo necesitas **pegar la URL de la noticia** y Comentia se encarga del resto.
 
-¿Alguna vez has querido guardar los comentarios de una noticia polémica para leerlos más tarde? ¿O analizar los patrones de comportamiento de los usuarios? **Comentia** hace esto posible con solo **pegar la URL de la noticia**.
+Ideal para:
+
+* 📊 análisis de datos
+* 🧠 estudios de comportamiento
+* 💾 archivado de debates
 
 ---
-
+<a name="características-principales"></a>
 ### ✨ Características principales
 
-| Característica           | Descripción                                                                 |
-| ------------------------ | --------------------------------------------------------------------------- |
-| 🚀 **Sencillo**          | Solo necesitas la URL de la noticia                                         |
-| 💾 **Guarda todo**       | Descarga **todos** los comentarios, incluso los que están en varias páginas |
-| 📁 **Organización**      | Elige dónde guardar los archivos (con ventana gráfica)                      |
-| 📊 **Estadísticas**      | Genera un informe completo con datos interesantes                           |
-| 🔄 **Sin duplicados**    | Detecta y evita comentarios repetidos automáticamente                       |
-| 🛡️ **Robusto**          | Reintenta automáticamente si hay errores de conexión                        |
-| 🎨 **Interfaz amigable** | Versión gráfica (tkinter) y versión de consola                              |
-| 📦 **Multiplataforma**   | Funciona en Windows, macOS y Linux                                          |
+| Característica               | Descripción                                                                 |
+| ---------------------------- | --------------------------------------------------------------------------- |
+| 🚀 **Sencillo**              | Solo necesitas la URL de la noticia                                         |
+| 💾 **Extracción completa**   | Descarga **todos** los comentarios, incluso los que están en varias páginas |
+| 📁 **Organización**          | Selección de carpeta mediante una interfaz gráfica                          |
+| 📊 **Estadísticas**          | Genera un informe automático con datos y metricas interesantes              |
+| 🔄 **Sin duplicados**        | Detecta y evita comentarios repetidos automáticamente                       |
+| 🛡️ **Robusto**               | Sistema de reintentos automático ante errores de conexión                   |
+| 🎨 **Interfaz moderna**      | GUI con Qt5 + versión clásica (tkinter)                                     |
+| ⚡ **Modo CLI**              | Uso desde terminal para automatización                                      |
+| 📦 **Multiplataforma**       | Conpatible con Windows, macOS y Linux                                       |
 
 ---
-
+<a name="requisitos-previos"></a>
 ### 📋 Requisitos previos
 
 * **Python 3.9 o superior** ([Descargar Python](https://www.python.org/downloads/)) *(solo para versión desde código fuente)*
@@ -49,29 +64,35 @@
 * Espacio en disco: ~10 MB
 
 ---
+<a name="instalación"></a>
+### 🚀 Instalación
 
-### 🚀 Instalación y uso
-
-#### Opción 1: Desde el código fuente
+#### 🔧 Desde el código fuente
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/tuusuario/comentia.git
-cd comentia
+git clone https://github.com/H0nt3/Comentia.git
+cd Comentia
 
 # Instalar dependencias
 pip install -r requirements.txt
+```
+#### ▶️ Ejecutar
 
-# Ejecutar (versión gráfica)
+``` bash
+# Ejecutar (GUI moderna - recomendado)
+python qt_app/main.py
+
+# GUI clásica
 python -m comentia
 
-# O versión de consola
+# Modo consola
 python -m comentia --cli
 ```
 
-#### Opción 2: Ejecutable independiente
+#### 📦 Ejecutable independiente
 
-Descarga el ejecutable desde **Releases**:
+Descarga el ejecutable según tu S.O. desde **Releases**:
 
 | Sistema Operativo | Archivo      | Ejecución    |
 | ----------------- | ------------ | ------------ |
@@ -79,67 +100,53 @@ Descarga el ejecutable desde **Releases**:
 | macOS             | Comentia.app | Doble click  |
 | Linux             | Comentia     | `./Comentia` |
 
+
+#### ⚡ App Electron
+
+Ejecuta el archivo **.AppImage** o el instalador correspondiente a tu S.O., como cualquier otra aplicación.
+
 ---
+<a name="guía-de-uso"></a>
+### 🧑‍💻 Guía de Uso
 
-### 📖 Guía paso a paso
+  **1.** Busca la noticia en Marca.com que quieres analizar y copia la URL.
 
-#### Paso 1: Obtener la URL
+  **2.** Ejecuta Comentia.
 
+  **3.** Selecciona la carpeta dónde deseas guardar los archivos que se van a generar.
+
+  **4.** Pega la URL de la noticia.
+
+  **5.** Espera a que termine y cierra Comentia si no lo necesitas más.
+
+  Ejemplo de URL de Marca.com
+  ```
+  https://www.marca.com/futbol/real-madrid/2026/02/09/noticia-ejemplo.html
+
+  ```
+<a name="salida-y-archivos-generados"></a>
+### 📂 Salida y archivos generados
 ```
-https://www.marca.com/futbol/real-madrid/2026/02/09/noticia-ejemplo.html
-```
-
-#### Paso 2: Ejecutar Comentia
-
-```bash
-python -m comentia
-```
-
-#### Paso 3: Seleccionar carpeta
-
-* 📁 Seleccionar carpeta
-* 💾 Carpeta actual
-* 🖥️ Escritorio
-
-#### Paso 4: Pegar la URL
-
-```
-📝 URL o ID de la noticia: https://www.marca.com/...
-```
-
-#### Paso 5: Esperar
-
-```
-⬇️ Descargando comentarios...
---------------------------------------------------
-📄 Página 1... (Total esperado: 840 comentarios)
-📄 Página 2... +25 | Total: 50/840 | █░░░░░░░░░░░░░░░░░░░ 6.0%
-...
-```
-
-#### Paso 6: Archivos generados
-
-```
-noticia_123456789/
-├── comentarios_123456789.json
-├── comentarios_123456789_texto.json
-└── comentarios_123456789_estadisticas.txt
+noticia_ID/
+├── comentarios_ID_completo.json
+├── comentarios_ID_simplificado.json
+└── comentarios_ID_estadisticas.txt
 ```
 
 ---
-
+<a name="estadísticas"></a>
 ### 📊 Estadísticas
 
-```
-COMENTIA - ESTADÍSTICAS DE COMENTARIOS
+Incluye automáticamente:
 
-Total esperado: 840
-Total obtenido: 838
-Éxito: 99.76%
-```
+  * 📈 Total de comentarios
+  * 👥 Usuarios más activosç
+  * 📝 Longitud media
+  * 🔤 Palabras más frecuentes
+  * ✅ Ratio de éxito de extracción
 
 ---
-
+<a name="estructura-json"></a>
 ### 🛠️ Estructura JSON
 
 #### Completo
@@ -147,9 +154,10 @@ Total obtenido: 838
 ```json
 {
   "metadata": {
-    "noticia_id": "4405498",
+    "noticia_id": "ID",
     "url_noticia": "https://...",
-    "total_comentarios": 838
+    "total_comentarios": 838,
+    "fecha_exportacion": "YYYY-MM-DD"
   },
   "comentarios": []
 }
@@ -160,86 +168,76 @@ Total obtenido: 838
 ```json
 [
   {
-    "usuario": "Xenon2",
-    "comentario": "..."
+    "usuario": "X",
+    "comentario": "...",
+    "fecha": "..."
   }
 ]
 ```
 
 ---
+<a name="preguntas-frecuentes-faq"></a>
+### ❓ Preguntas Frecuentes (FAQ)
+<details> <summary><b>¿Puedo extraer comentarios de cualquier noticia?</b></summary> 
+  Sí, cualquier noticia de Marca.com que tenga sección de comentarios activa funciona perfectamente.</details>
 
-### 📄 Licencia
+<details> <summary><b>¿Cuánto tiempo tarda el proceso?</b></summary>
+  Depende del número de comentarios. Para 1000 comentarios, aproximadamente 30-60 segundos.
+</details>
 
-MIT License
+<details> <summary><b>¿Es legal extraer estos comentarios?</b></summary>
+  Sí, estás extrayendo datos públicos que ya están disponibles en la web. Recomendamos usarlo de forma ética y respetuosa, sin sobrecargar los servidores.
+</details>
 
----
+<details> <summary><b>¿Puedo usar los comentarios para análisis de datos?</b></summary>
+  ¡Claro! Los archivos JSON son perfectos para análisis con Python, Pandas, Excel o cualquier herramienta de datos.
+</details>
 
-### 🙏 Créditos
-
-Desarrollado con ❤️ para la comunidad de Marca.com
-
-<div align="center">
-
-⭐ Si Comentia te ha sido útil, ¡dale una estrella! ⭐
-
-</div>
-
----
-
-<a name="english"></a>
-
-## 🇬🇧 English
-
-### 📖 What is Comentia?
-
-Comentia is an easy-to-use tool that lets you download and save all comments from any Marca.com article.
-
----
-
-### ✨ Features
-
-| Feature           | Description          |
-| ----------------- | -------------------- |
-| 🚀 Simple         | Just paste the URL   |
-| 💾 Save all       | Downloads everything |
-| 📊 Stats          | Generates reports    |
-| 📦 Cross-platform | Works everywhere     |
-
----
-
-### 📋 Requirements
-
-* Python 3.9+
-* Internet connection
-* ~10MB disk space
-
----
-
-### 🚀 Installation
+<details><summary><b>¿Qué hago si el programa no arranca en Linux?</b></summary>
+  Asegúrate de tener instalado `python3-tk` y `python3-pyqt5`: 
 
 ```bash
-git clone https://github.com/yourusername/comentia.git
-cd comentia
-pip install -r requirements.txt
-python -m comentia
-```
+  sudo apt install python3-tk python3-pyqt5
+``` 
+</details>
 
 ---
+<a name="solución-de-problemas"></a>
+### 🐛 Solución de problemas
 
-### 📄 License
+| Problema                                         | Solución                      |
+| ------------------------------------------------ | ------------------------------------------------------|
+| `ModuleNotFoundError: No module named requests`  | Ejecuta en la terminal `pip install requests`         |
+| `ModuleNotFoundError: No module named PyQt5`     | Ejecuta en la terminal `pip install PyQt5`            |
+| La ventana de tkinter no se abre en Linux        | Ejecuta en la terminal `sudo apt install python3-tk`  |
+| Error de conexión                                | Revisar internet                                      |
+| Permission denied en Linux                       | Ejecuta en la terminal `chmod +x Comentia_Linux` antes de ejecutar     |
 
-MIT License
 
 ---
+<a name="contribuir"></a>
+### 🤝 Contribuir
 
-### 🙏 Credits
+Sientete libre de contribuir y mejorar **Comentia** de la manera que consideres oportuno.
 
-Developed with ❤️ for the Marca.com community
+---
+<a name="licencia"></a>
+### 📄 Licencia
+
+MIT License© 2026
+
+---
+<a name="soporte-y-créditos"></a>
+### ⭐ Soporte y Créditos
+
+Si este proyecto te resulta útil:
 
 <div align="center">
 
-⭐ Give it a star on GitHub ⭐
+⭐ Dale una estrella en GitHub
+🐛 Reporta bugs
+💡 Propón mejoras
+
+Desarrollado por Grupo 40 - Equipo EVO Madrid con ❤️
 
 </div>
-
----

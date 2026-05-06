@@ -282,7 +282,7 @@ def generar_estadisticas_txt(noticia_id: str, url_noticia: str, comentarios_dict
 
         f.write("=" * 80 + "\n")
         f.write("Estadísticas generadas automáticamente por Comentia\n")
-        f.write("https://github.com/H0nt3/Comentia\n")
+        f.write("Propiedad de CNP - Grupo EVO Madrid\n")
         f.write("=" * 80 + "\n")
 
     return archivo
