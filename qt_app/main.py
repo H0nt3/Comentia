@@ -16,7 +16,11 @@ from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QFont
 
 # Importar núcleo común
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+# Calcular ruta absoluta a src/
+root_dir = Path(__file__).parent.parent
+src_path = str(root_dir / "src")
+if src_path not in sys.path:
+    sys.path.insert(0, src_path)
 from comentia.core import (extraer_id_noticia, descargar_comentarios,
                            exportar_comentarios, generar_estadisticas_txt)
 

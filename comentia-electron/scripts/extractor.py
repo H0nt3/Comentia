@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 """Script CLI para Electron que llama al núcleo de Comentia."""
 
-import sys
-import json
+#!/usr/bin/env python3
+import sys, json, time
 from pathlib import Path
 
-# Añadir el directorio src al path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
+# Calcular ruta absoluta al núcleo
+current_dir = Path(__file__).resolve().parent
+root_dir = current_dir.parent.parent
+src_path = str(root_dir / "src")
+if src_path not in sys.path:
+    sys.path.insert(0, src_path)
 
-from comentia.core import (extraer_id_noticia, descargar_comentarios,
-                           exportar_comentarios, generar_estadisticas_txt)
-import time
+from comentia.core import extraer_id_noticia, descargar_comentarios, exportar_comentarios, generar_estadisticas_txt
 
 def main():
     if len(sys.argv) < 3:

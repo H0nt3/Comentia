@@ -2,6 +2,7 @@
 """Interfaz gráfica con tkinter para Comentia."""
 
 import tkinter as tk
+import tkinter.ttk as ttk
 from tkinter import filedialog, messagebox
 import sys
 import time
@@ -161,7 +162,7 @@ class AplicacionComentia:
         self.btn_extraer.pack(fill='x', padx=20, pady=10)
 
         # Barra de progreso
-        self.progress = tk.ttk.Progressbar(self.root, mode='determinate')
+        self.progress = ttk.Progressbar(self.root, mode='determinate')
         self.progress.pack(fill='x', padx=20, pady=5)
         self.progress.pack_forget()
 
