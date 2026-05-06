@@ -1,27 +1,41 @@
 {
-  "name": "comentia",
-  "version": "2.0.0",
+  "name": "comentia-electron",
+  "version": "1.0.0",
+  "description": "Extractor de comentarios de Marca.com - Versión Electron",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build:win": "electron-builder --win",
-    "build:linux": "electron-builder --linux"
+    "build-win": "electron-builder --win",
+    "build-mac": "electron-builder --mac",
+    "build-linux": "electron-builder --linux"
   },
+  "author": "H0nt3",
+  "license": "MIT",
   "devDependencies": {
-    "electron": "^30.0.0",
-    "electron-builder": "^24.0.0"
+    "electron": "^28.0.0",
+    "electron-builder": "^24.6.4"
   },
   "build": {
-    "appId": "com.H0nt3.comentia",
+    "appId": "com.comentia.app",
     "productName": "Comentia",
+    "directories": {
+      "output": "dist"
+    },
     "files": [
-      "**/*"
+      "**/*",
+      "!node_modules/.cache"
     ],
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "icons/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "icons/icon.icns"
     },
     "linux": {
-      "target": ["AppImage", "deb"]
+      "target": "AppImage",
+      "icon": "icons/icon.png"
     }
   }
 }

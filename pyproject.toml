@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "comentia"
+version = "3.0.0"
+description = "Extractor de comentarios de la versión digital de Marca.com"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "H0nt3", email = "tu@email.com"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: MacOS X",
+    "Environment :: Win32 (MS Windows)",
+    "Environment :: X11 Applications",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "requests>=2.28.0",
+]
+
+[project.optional-dependencies]
+qt = ["PyQt5>=5.15.0"]
+electron = ["build"]
+
+[project.urls]
+Homepage = "https://github.com/H0nt3/Comentia"
+Bug Tracker = "https://github.com/H0nt3/Comentia/issues"
+
+[project.scripts]
+comentia = "comentia.__main__:main"
+comentia-qt = "qt_app.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["comentia*"]

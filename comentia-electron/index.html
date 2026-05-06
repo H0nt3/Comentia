@@ -1,33 +1,40 @@
-<script>
-function run() {
-  const url = document.getElementById('url').value;
-  document.getElementById('log').textContent = "";
-  window.api.runPython(url);
-}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Comentia - Extractor de comentarios</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📝 Comentia</h1>
+            <p>Extractor de comentarios de Marca.com</p>
+        </header>
 
-window.addEventListener('py-event', (e) => {
-  const data = e.detail;
-  const log = document.getElementById('log');
-  const bar = document.getElementById('progress');
+        <div class="main-content">
+            <div class="input-section">
+                <label for="url">URL de la noticia:</label>
+                <input type="text" id="url" placeholder="https://www.marca.com/..." />
+                <button id="selectDirBtn">📁 Seleccionar carpeta</button>
+                <div id="directoryDisplay" class="directory-display"></div>
+                <button id="extractBtn" disabled>🚀 Extraer comentarios</button>
+            </div>
 
-  if (data.event === 'progress') {
-    bar.style.width = data.percent + '%';
-  }
+            <div class="progress-section" id="progressSection" style="display: none;">
+                <h3>Progreso:</h3>
+                <div class="progress-bar-container">
+                    <div id="progressBar" class="progress-bar"></div>
+                </div>
+                <div class="progress-log" id="progressLog"></div>
+            </div>
 
-  if (data.event === 'start') {
-    log.textContent += "Inicio...\n";
-  }
-
-  if (data.event === 'done') {
-    log.textContent += "✔ " + data.message + "\n";
-  }
-
-  if (data.event === 'error') {
-    log.textContent += "❌ " + data.message + "\n";
-  }
-
-  if (data.current) {
-    log.textContent += `Página ${data.current}/${data.total}\n`;
-  }
-});
-</script>
+            <div class="result-section" id="resultSection" style="display: none;">
+                <h3>✅ ¡Completado!</h3>
+                <div id="resultMessage"></div>
+            </div>
+        </div>
+    </div>
+    <script src="renderer.js"></script>
+</body>
+</html>
