@@ -5,6 +5,7 @@
 ![Versión](https://img.shields.io/badge/versión-3.0.0-blue)
 ![Python](https://img.shields.io/badge/python-3.9+-green)
 ![Licencia](https://img.shields.io/badge/licencia-MIT-orange)
+![Plataformas](https://img.shields.io/badge/plataforma-Windows%20%7C%20Linux%20%7C%20Mac-grey)
 
 **Extrae todos los comentarios de cualquier noticia de Marca.com de forma sencilla y rápida**
 
@@ -43,17 +44,18 @@ Ideal para:
 <a name="características-principales"></a>
 ### ✨ Características principales
 
-| Característica               | Descripción                                                                 |
-| ---------------------------- | --------------------------------------------------------------------------- |
-| 🚀 **Sencillo**              | Solo necesitas la URL de la noticia                                         |
-| 💾 **Extracción completa**   | Descarga **todos** los comentarios, incluso los que están en varias páginas |
-| 📁 **Organización**          | Selección de carpeta mediante una interfaz gráfica                          |
-| 📊 **Estadísticas**          | Genera un informe automático con datos y metricas interesantes              |
-| 🔄 **Sin duplicados**        | Detecta y evita comentarios repetidos automáticamente                       |
-| 🛡️ **Robusto**               | Sistema de reintentos automático ante errores de conexión                   |
-| 🎨 **Interfaz moderna**      | GUI con Qt5 + versión clásica (tkinter)                                     |
-| ⚡ **Modo CLI**              | Uso desde terminal para automatización                                      |
-| 📦 **Multiplataforma**       | Conpatible con Windows, macOS y Linux                                       |
+| Característica                     | Descripción                                                                 |
+| ---------------------------------- | --------------------------------------------------------------------------- |
+| 🚀 **Sencillo**                    | Solo necesitas la URL de la noticia                                         |
+| 💾 **Extracción completa**         | Descarga **todos** los comentarios, incluso los que están en varias páginas |
+| 📁 **Organización**                | Selección de carpeta mediante una interfaz gráfica                          |
+| 📊 **Estadísticas**                | Genera un informe automático con datos y metricas interesantes              |
+| 🔄 **Sin duplicados**              | Detecta y evita comentarios repetidos automáticamente                       |
+| 🛡️ **Robusto**                     | Sistema de reintentos automático ante errores de conexión                   |
+| 🎨 **Interfaz moderna**            | GUI con Qt5 + versión clásica (tkinter)                                     |
+| ⚡ **Modo CLI**                     | Uso desde terminal para automatización                                      |
+| 📦 **Multiplataforma**             | Compatible con Windows, macOS y Linux                                       |
+| 💾 **Configuración persistente**   | Recuerda tu última carpeta y URLs                                           |
 
 ---
 <a name="requisitos-previos"></a>
@@ -94,43 +96,68 @@ python -m comentia --cli
 
 Descarga el ejecutable según tu S.O. desde **Releases**:
 
-| Sistema Operativo | Archivo      | Ejecución    |
-| ----------------- | ------------ | ------------ |
-| Windows           | Comentia.exe | Doble click  |
-| macOS             | Comentia.app | Doble click  |
-| Linux             | Comentia     | `./Comentia` |
-
-
-#### ⚡ App Electron
-
-Ejecuta el archivo **.AppImage** o el instalador correspondiente a tu S.O., como cualquier otra aplicación.
+| Sistema Operativo | Archivo                  |
+| ----------------- | ------------------------ |
+| Windows           | Comentia-windows.exe     |
+| macOS             | Comentia-macoss.app      |
+| Linux             | Comentia-linux           |
 
 ---
 <a name="guía-de-uso"></a>
 ### 🧑‍💻 Guía de Uso
 
-  **1.** Busca la noticia en Marca.com que quieres analizar y copia la URL.
+#### Extracción simple
 
-  **2.** Ejecuta Comentia.
+  **1.** Ejecuta Comentia (doble-clic en el ejecutable o `python qt_app/main.py`) 
+  
+  **2.** Selecciona la carpeta dónde deseas guardar los archivos que se van a generar.
 
-  **3.** Selecciona la carpeta dónde deseas guardar los archivos que se van a generar.
+  **3.** Busca la noticia en Marca.com, selecciona la URL y copiala.
 
   **4.** Pega la URL de la noticia.
 
-  **5.** Espera a que termine y cierra Comentia si no lo necesitas más.
+  **5.** Haz clic en **"Extraer Comentarios"**.
+
+  **6.** Espera a que termine (verás el proceso en tiempo real)
+  
+  **7.** Los archivos generados estarán en la carpeta que seleccionaste. 
+  
+  **8.** Si todo fué correcto, cierra Comentia.
 
   Ejemplo de URL de Marca.com
   ```
   https://www.marca.com/futbol/real-madrid/2026/02/09/noticia-ejemplo.html
 
   ```
+
+#### Extracción por lotes (multiples URL's)
+
+  **1.** Crea un archivo de texto plano (*.txt) con una URL por linea:
+  
+  ```text
+  https://www.marca.com/futbol/real-madrid/2026/02/09/noticia-ejemplo.html
+  https://www.marca.com/futbol/real-madrid/2026/03/12/noticia-ejemplo.html
+  https://www.marca.com/futbol/real-madrid/2025/012/28/noticia-ejemplo.html
+  ```
+  
+  **2.** En Comentia, ve a la pestaña **"Extracción por lotes"**.
+
+  **3.** Selecciona el archivo con las URLs.
+
+  **4.** Haz clic en **"Extraer todas las URLs**".
+
+  **5.** Espera a que procese todas las noticias.
+
+ ---
 <a name="salida-y-archivos-generados"></a>
 ### 📂 Salida y archivos generados
+
+En la carpeta que seleccionaste, apareceran estos archivos:
 ```
-noticia_ID/
-├── comentarios_ID_completo.json
-├── comentarios_ID_simplificado.json
-└── comentarios_ID_estadisticas.txt
+noticia_123456789/
+├── comentarios_123456789_completo.json       # Aqui se guardan todos los comentarios y los metadatos (formato completo)
+├── comentarios_123456789_simplificado.json   # Versión simplificada del archivo anterior (solo texto, sin metadatos)
+└── comentarios_123456789_estadisticas.txt    # Informe de estadisticas
 ```
 
 ---
@@ -139,27 +166,38 @@ noticia_ID/
 
 Incluye automáticamente:
 
-  * 📈 Total de comentarios
-  * 👥 Usuarios más activosç
-  * 📝 Longitud media
+  * 📈 Total de comentarios esperados y obtenidos 
+  * 👥 Top 10 de usuarios más activos
+  * 📝 Longitud promedio de los comentarios
   * 🔤 Palabras más frecuentes
+  * 🗓️ Actividad por fechas
   * ✅ Ratio de éxito de extracción
-
+  * 🚨 Lista de errores (si los hubo)
 ---
 <a name="estructura-json"></a>
 ### 🛠️ Estructura JSON
 
-#### Completo
+#### Ejemplo de JSON Completo
 
 ```json
 {
   "metadata": {
-    "noticia_id": "ID",
+    "noticia_id": "4405498",
     "url_noticia": "https://...",
-    "total_comentarios": 838,
-    "fecha_exportacion": "YYYY-MM-DD"
+    "total_comentarios": 57,
+    "fecha_exportacion": "2026-05-06 12:30:45"
   },
-  "comentarios": []
+  "comentarios": [
+    {
+      "id": "86882964",
+      "order": 1,
+      "user": "usuario123",
+      "body": "Texto del comentario...",
+      "date": "09/02/2026",
+      "time": "08:31",
+      "references": []
+    }
+  ]
 }
 ```
 
@@ -206,11 +244,12 @@ Incluye automáticamente:
 ### 🐛 Solución de problemas
 
 | Problema                                         | Solución                      |
-| ------------------------------------------------ | ------------------------------------------------------|
-| `ModuleNotFoundError: No module named requests`  | Ejecuta en la terminal `pip install requests`         |
-| `ModuleNotFoundError: No module named PyQt5`     | Ejecuta en la terminal `pip install PyQt5`            |
-| La ventana de tkinter no se abre en Linux        | Ejecuta en la terminal `sudo apt install python3-tk`  |
-| Error de conexión                                | Revisar internet                                      |
+| ------------------------------------------------ | -------------------------------------------------------|
+| `ModuleNotFoundError: No module named PyQt5`     | Ejecuta en la terminal `pip install PyQt5`             |
+| La ventana de tkinter no se abre en Linux        | Ejecuta en la terminal `sudo apt install python3-tk`   |
+| La ventana no se abre en linux                   | Ejecuta en la terminal `sudo apt install python3-pyqt5 |
+| Error de conexión                                | Revisar internet                                       |
+| No se encuentra el ID de la noticia              | Asegurate que has introducido la URL corrrecta         |
 | Permission denied en Linux                       | Ejecuta en la terminal `chmod +x Comentia_Linux` antes de ejecutar     |
 
 
@@ -224,7 +263,8 @@ Sientete libre de contribuir y mejorar **Comentia** de la manera que consideres 
 <a name="licencia"></a>
 ### 📄 Licencia
 
-MIT License© 2026
+MIT License - Libre para su uso personal y comercial
+© 2026
 
 ---
 <a name="soporte-y-créditos"></a>
