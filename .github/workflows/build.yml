@@ -6,10 +6,13 @@ on:
       - 'v*'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
-  # COMPILAR PYTHON PARA WINDOWS, LINUX Y MAC
+  # Compilar para Windows, Linux y macOS
   build-python:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
@@ -23,62 +26,51 @@ jobs:
             os: macos-latest
             ext: ''
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-    - name: Instalar herramientas
-      run: |
-        pip install pyinstaller requests PyQt5
-    - name: Compilar para ${{ matrix.target }}
-      run: |
-        pyinstaller --onefile --windowed \
-          --name Comentia_${{ matrix.target }} \
-          --add-data "src/comentia:comentia" \
-          qt_app/main.py
-    - name: Guardar el ejecutable
-      uses: actions/upload-artifact@v4
-      with:
-        name: Comentia-${{ matrix.target }}
-        path: dist/Comentia_${{ matrix.target }}${{ matrix.ext }}
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Instalar dependencias
+        run: |
+          pip install pyinstaller requests PyQt5
+      
+      - name: Compilar para ${{ matrix.target }}
+        run: |
+          pyinstaller --onefile --windowed \
+            --name Comentia_${{ matrix.target }} \
+            --add-data "src/comentia:comentia" \
+            --hidden-import PyQt5 \
+            qt_app/main.py
+      
+      - name: Subir artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: Comentia-${{ matrix.target }}
+          path: dist/Comentia_${{ matrix.target }}${{ matrix.ext }}
 
-  # COMPILAR VERSIÓN ELECTRON (SOLO LINUX)
-  build-electron:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-    - name: Instalar dependencias de Electron
-      run: |
-        cd comentia-electron
-        npm install
-        npm run build-linux
-    - name: Guardar la app Electron
-      uses: actions/upload-artifact@v4
-      with:
-        name: Comentia-Electron-Linux
-        path: comentia-electron/dist/*.AppImage
-
-  # CREAR LA RELEASE CON TODOS LOS ARCHIVOS
+  # Crear la release
   crear-release:
-    needs: [build-python, build-electron]
+    needs: build-python
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-    - uses: actions/download-artifact@v4
-      with:
-        path: archivos
-    - name: Organizar archivos
-      run: |
-        mkdir release_files
-        find archivos -type f -exec cp {} release_files/ \;
-    - name: Publicar la release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: release_files/*
-        draft: false
-        prerelease: false
-        generate_release_notes: true
+      - uses: actions/download-artifact@v4
+        with:
+          path: archivos
+      
+      - name: Organizar archivos
+        run: |
+          mkdir release_files
+          find archivos -type f -name "Comentia-*" -exec cp {} release_files/ \;
+          ls -la release_files/
+      
+      - name: Publicar release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release_files/*
+          draft: false
+          prerelease: false
+          generate_release_notes: true
