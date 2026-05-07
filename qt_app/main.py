@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """
 Comentia - Extractor de comentarios de Marca.com
-Versión PyQt5 - Corregida
+Versión PyQt5 - Con estadísticas completas y vista previa
 """
 
 import sys
-import os
 import re
 import time
 import json
@@ -18,8 +17,7 @@ from collections import Counter
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QLineEdit, QPushButton, QTextEdit, QProgressBar,
-    QFileDialog, QMessageBox, QGroupBox, QTabWidget, QListWidget,
-    QListWidgetItem, QCompleter
+    QFileDialog, QMessageBox, QGroupBox, QDialog, QTextBrowser
 )
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QFont, QDragEnterEvent, QDropEvent
@@ -38,54 +36,62 @@ TIMEOUT = 15
 
 
 # ========================
-# CONFIGURACIÓN PERSISTENTE
+# DIÁLOGO DE VISTA PREVIA
 # ========================
-class Configuracion:
-    CONFIG_FILE = Path.home() / ".comentia_config.json"
-    
-    @classmethod
-    def guardar_ultimo_directorio(cls, directorio: str):
-        config = cls.cargar_configuracion()
-        config["ultimo_directorio"] = directorio
-        cls._guardar_configuracion(config)
-    
-    @classmethod
-    def obtener_ultimo_directorio(cls) -> str:
-        config = cls.cargar_configuracion()
-        return config.get("ultimo_directorio", "")
-    
-    @classmethod
-    def guardar_ultimas_urls(cls, url: str):
-        config = cls.cargar_configuracion()
-        ultimas = config.get("ultimas_urls", [])
-        if url in ultimas:
-            ultimas.remove(url)
-        ultimas.insert(0, url)
-        config["ultimas_urls"] = ultimas[:5]
-        cls._guardar_configuracion(config)
-    
-    @classmethod
-    def obtener_ultimas_urls(cls) -> list:
-        config = cls.cargar_configuracion()
-        return config.get("ultimas_urls", [])
-    
-    @classmethod
-    def cargar_configuracion(cls) -> dict:
-        if cls.CONFIG_FILE.exists():
-            try:
-                with open(cls.CONFIG_FILE, "r", encoding="utf-8") as f:
-                    return json.load(f)
-            except:
-                pass
-        return {}
-    
-    @classmethod
-    def _guardar_configuracion(cls, config: dict):
-        try:
-            with open(cls.CONFIG_FILE, "w", encoding="utf-8") as f:
-                json.dump(config, f, ensure_ascii=False, indent=2)
-        except:
-            pass
+class VistaPreviaDialog(QDialog):
+    def __init__(self, comentarios, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Vista previa de comentarios")
+        self.setModal(False)
+        self.resize(700, 500)
+        
+        layout = QVBoxLayout(self)
+        
+        titulo = QLabel(f"📝 Primeros {min(20, len(comentarios))} comentarios")
+        titulo.setFont(QFont("Arial", 12, QFont.Bold))
+        layout.addWidget(titulo)
+        
+        self.text_area = QTextBrowser()
+        self.text_area.setStyleSheet("""
+            QTextBrowser {
+                background: #1e1e1e;
+                color: #d4d4d4;
+                font-family: monospace;
+                font-size: 11px;
+                border: 1px solid #555;
+                border-radius: 5px;
+            }
+        """)
+        
+        texto = ""
+        for i, c in enumerate(comentarios[:20], 1):
+            texto += f"\n{'='*70}\n"
+            texto += f"[{i}] 👤 {c.get('user', 'anónimo')}\n"
+            texto += f"📅 {c.get('date', '?')} {c.get('time', '?')}\n"
+            texto += f"💬 {c.get('body', '')[:300]}"
+            if len(c.get('body', '')) > 300:
+                texto += "..."
+            texto += "\n"
+        
+        self.text_area.setText(texto)
+        layout.addWidget(self.text_area)
+        
+        btn_cerrar = QPushButton("Cerrar")
+        btn_cerrar.clicked.connect(self.accept)
+        layout.addWidget(btn_cerrar)
+        
+        self.setStyleSheet("""
+            QDialog { background-color: #2b2b2b; }
+            QLabel { color: white; }
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                padding: 8px;
+            }
+            QPushButton:hover { background-color: #45a049; }
+        """)
 
 
 # ========================
@@ -124,7 +130,7 @@ class ExtractionThread(QThread):
             
             self.log("💾 Guardando archivos...")
             self._exportar(comentarios, noticia_id, subdir, self.url)
-            self._generar_estadisticas(comentarios, noticia_id, self.url, total, subdir, errores)
+            self._generar_estadisticas_completas(comentarios, noticia_id, self.url, total, subdir, errores)
             
             self.log(f"✅ Proceso completado: {len(comentarios)}/{total} comentarios")
             self.finished_signal.emit(comentarios, total, errores, noticia_id)
@@ -272,36 +278,73 @@ class ExtractionThread(QThread):
             json.dump(comentarios_simples, f, ensure_ascii=False, indent=2)
         self.log(f"💾 Guardado: {archivo_simplificado.name}")
     
-    def _generar_estadisticas(self, comentarios_dict: Dict[int, dict], noticia_id: str,
-                              url_noticia: str, total_esperado: int, directorio: Path,
-                              errores: List[str]):
+    def _generar_estadisticas_completas(self, comentarios_dict: Dict[int, dict], noticia_id: str,
+                                        url_noticia: str, total_esperado: int, directorio: Path,
+                                        errores: List[str]):
+        """
+        Genera un archivo de estadísticas COMPLETO similar al de comentia.py
+        """
         comentarios_reales = list(comentarios_dict.values())
         total_obtenidos = len(comentarios_reales)
         
+        # ==================== ESTADÍSTICAS DE USUARIOS ====================
         usuarios = {}
-        fechas = {}
-        comentarios_con_referencias = 0
-        palabras_comunes = {}
-        
         for c in comentarios_reales:
             user = c.get("user", "anónimo")
             usuarios[user] = usuarios.get(user, 0) + 1
-            fecha = c.get("date", "desconocida")
-            fechas[fecha] = fechas.get(fecha, 0) + 1
-            if c.get("references"):
-                comentarios_con_referencias += 1
-            
-            palabras = re.findall(r'\b\w{4,}\b', c.get("body", "").lower())
-            for palabra in palabras:
-                if palabra not in ['como', 'cuando', 'donde', 'este', 'esta', 'esto', 'para', 'porque']:
-                    palabras_comunes[palabra] = palabras_comunes.get(palabra, 0) + 1
         
         top_usuarios = sorted(usuarios.items(), key=lambda x: x[1], reverse=True)[:10]
-        top_palabras = sorted(palabras_comunes.items(), key=lambda x: x[1], reverse=True)[:15]
-        longitudes = [len(c.get("body", "")) for c in comentarios_reales]
-        longitud_promedio = sum(longitudes) / len(longitudes) if longitudes else 0
-        porcentaje_exito = (total_obtenidos / total_esperado * 100) if total_esperado > 0 else 0
         
+        # ==================== ACTIVIDAD POR FECHA ====================
+        fechas = {}
+        for c in comentarios_reales:
+            fecha = c.get("date", "desconocida")
+            fechas[fecha] = fechas.get(fecha, 0) + 1
+        
+        # ==================== ACTIVIDAD POR HORA ====================
+        horas = []
+        for c in comentarios_reales:
+            hora_match = re.search(r'(\d{1,2}):', c.get("time", "00:00"))
+            if hora_match:
+                horas.append(int(hora_match.group(1)))
+        
+        hora_pico = "No disponible"
+        if horas:
+            hora_pico_valor = max(set(horas), key=horas.count)
+            hora_pico = f"{hora_pico_valor:02d}:00 - {horas.count(hora_pico_valor)} comentarios"
+        
+        # ==================== PALABRAS MÁS UTILIZADAS ====================
+        palabras_comunes = {}
+        stopwords = {'como', 'cuando', 'donde', 'este', 'esta', 'esto', 'para', 'porque', 
+                     'pero', 'sino', 'sobre', 'entre', 'sin', 'que', 'con', 'por', 'para',
+                     'una', 'unas', 'uno', 'unos', 'la', 'las', 'el', 'los', 'y', 'o', 'de',
+                     'en', 'a', 'es', 'son', 'fue', 'han', 'he', 'has', 'ha', 'hemos', 'han',
+                     'ser', 'estar', 'tener', 'hacer', 'poder', 'decir', 'ir', 'ver', 'dar',
+                     'muy', 'más', 'menos', 'tan', 'como', 'cuando', 'donde', 'adonde'}
+        
+        for c in comentarios_reales:
+            texto = c.get("body", "").lower()
+            palabras = re.findall(r'\b[a-záéíóúüñ]{4,}\b', texto)
+            for palabra in palabras:
+                if palabra not in stopwords and len(palabra) > 3:
+                    palabras_comunes[palabra] = palabras_comunes.get(palabra, 0) + 1
+        
+        top_palabras = sorted(palabras_comunes.items(), key=lambda x: x[1], reverse=True)[:15]
+        
+        # ==================== COMPARACIÓN CON OTROS USUARIOS ====================
+        comentarios_por_usuario = {}
+        for c in comentarios_reales:
+            user = c.get("user", "anónimo")
+            comentarios_por_usuario[user] = comentarios_por_usuario.get(user, 0) + 1
+        
+        avg_comentarios_por_usuario = total_obtenidos / len(usuarios) if usuarios else 0
+        
+        # ==================== MÉTRICAS DE CONTENIDO ====================
+        longitudes = [len(c.get("body", "")) for c in comentarios_reales]
+        comentarios_con_referencias = sum(1 for c in comentarios_reales if c.get("references"))
+        total_referencias = sum(len(c.get("references", [])) for c in comentarios_reales)
+        
+        # ==================== DETECCIÓN DE HUECOS ====================
         if comentarios_reales:
             orders = set(comentarios_dict.keys())
             max_order = max(orders)
@@ -310,65 +353,146 @@ class ExtractionThread(QThread):
         else:
             huecos = []
         
+        # ==================== PORCENTAJE DE ÉXITO ====================
+        porcentaje_exito = (total_obtenidos / total_esperado * 100) if total_esperado > 0 else 0
+        
+        # ==================== CONSTANCIAS ====================
+        fechas_unicas = len(fechas)
+        if fechas_unicas > 1:
+            constantes = [c for c in usuarios.values() if c > total_obtenidos / fechas_unicas]
+            usuarios_constantes = len(constantes)
+        else:
+            usuarios_constantes = 0
+        
+        # ==================== GENERAR ARCHIVO TXT ====================
         archivo = directorio / f"comentarios_{noticia_id}_estadisticas.txt"
         
         with open(archivo, "w", encoding="utf-8") as f:
             f.write("=" * 80 + "\n")
-            f.write("📊 COMENTIA - ESTADÍSTICAS DE COMENTARIOS\n")
+            f.write("📊 COMENTIA - ESTADÍSTICAS COMPLETAS DE COMENTARIOS\n")
             f.write("=" * 80 + "\n\n")
             
-            f.write("📰 INFORMACIÓN BÁSICA\n")
+            # INFORMACIÓN DE LA NOTICIA
+            f.write("📰 INFORMACIÓN DE LA NOTICIA\n")
             f.write("-" * 40 + "\n")
-            f.write(f"ID: {noticia_id}\n")
+            f.write(f"ID de la noticia: {noticia_id}\n")
             f.write(f"URL: {url_noticia if url_noticia else 'No disponible'}\n")
-            f.write(f"Extracción: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+            f.write(f"Fecha de extracción: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"Tiempo de ejecución: {time.time() - self._tiempo_inicio:.2f} segundos\n\n")
             
-            f.write("📊 RESUMEN\n")
+            # RESUMEN DE EXTRACCIÓN
+            f.write("📊 RESUMEN DE EXTRACCIÓN\n")
             f.write("-" * 40 + "\n")
-            f.write(f"Esperados: {total_esperado}\n")
-            f.write(f"Obtenidos: {total_obtenidos}\n")
-            f.write(f"Éxito: {porcentaje_exito:.2f}%\n")
-            f.write(f"Huecos: {len(huecos)}\n\n")
-            
-            f.write("👥 TOP 10 USUARIOS\n")
-            f.write("-" * 40 + "\n")
-            for i, (user, count) in enumerate(top_usuarios, 1):
-                f.write(f"{i:2}. {user:<20} - {count:3}\n")
+            f.write(f"Total esperado según API: {total_esperado} comentarios\n")
+            f.write(f"Total obtenido: {total_obtenidos} comentarios\n")
+            f.write(f"Porcentaje de éxito: {porcentaje_exito:.2f}%\n")
+            f.write(f"Comentarios perdidos: {total_esperado - total_obtenidos}\n")
+            f.write(f"Huecos detectados: {len(huecos)}\n")
+            if huecos:
+                huecos_mostrar = huecos[:20]
+                f.write(f"Huecos (primeros 20): {', '.join(map(str, huecos_mostrar))}\n")
+                if len(huecos) > 20:
+                    f.write(f"... y {len(huecos) - 20} huecos más\n")
             f.write("\n")
             
-            f.write("🔤 PALABRAS MÁS UTILIZADAS\n")
+            # ESTADÍSTICAS DE USUARIOS
+            f.write("👥 ESTADÍSTICAS DE USUARIOS\n")
+            f.write("-" * 40 + "\n")
+            f.write(f"Total de usuarios únicos: {len(usuarios)}\n")
+            f.write(f"Promedio de comentarios por usuario: {avg_comentarios_por_usuario:.2f}\n")
+            f.write(f"Usuarios constantes (comentaron en múltiples fechas): {usuarios_constantes}\n\n")
+            f.write("TOP 10 USUARIOS MÁS ACTIVOS:\n")
+            for i, (user, count) in enumerate(top_usuarios, 1):
+                f.write(f"  {i:2}. {user:<25} - {count:3} comentarios ({count/total_obtenidos*100:.1f}%)\n")
+            f.write("\n")
+            
+            # ACTIVIDAD TEMPORAL
+            f.write("⏰ ACTIVIDAD TEMPORAL\n")
+            f.write("-" * 40 + "\n")
+            f.write(f"Hora con más comentarios: {hora_pico}\n\n")
+            
+            f.write("📅 ACTIVIDAD POR FECHA\n")
+            f.write("-" * 40 + "\n")
+            fechas_ordenadas = sorted(fechas.items(), key=lambda x: x[0], reverse=True)[:10]
+            for fecha, count in fechas_ordenadas:
+                f.write(f"  {fecha}: {count} comentarios\n")
+            f.write("\n")
+            
+            # MÉTRICAS DE CONTENIDO
+            f.write("📝 MÉTRICAS DE CONTENIDO\n")
+            f.write("-" * 40 + "\n")
+            if longitudes:
+                f.write(f"Longitud promedio: {sum(longitudes)/len(longitudes):.0f} caracteres\n")
+                f.write(f"Comentario más corto: {min(longitudes)} caracteres\n")
+                f.write(f"Comentario más largo: {max(longitudes)} caracteres\n")
+            f.write(f"Comentarios con referencias: {comentarios_con_referencias}\n")
+            f.write(f"Total de referencias: {total_referencias}\n")
+            
+            # TOP USUARIOS QUE MÁS REFERENCIAS RECIBEN
+            referencias_recibidas = {}
+            for c in comentarios_reales:
+                for ref in c.get("references", []):
+                    if "order" in ref:
+                        orden_ref = int(ref["order"]) if isinstance(ref["order"], str) else ref["order"]
+                        for c2 in comentarios_reales:
+                            if c2.get("order") == orden_ref:
+                                usuario_ref = c2.get("user", "desconocido")
+                                referencias_recibidas[usuario_ref] = referencias_recibidas.get(usuario_ref, 0) + 1
+                                break
+            
+            if referencias_recibidas:
+                top_ref_recibidas = sorted(referencias_recibidas.items(), key=lambda x: x[1], reverse=True)[:5]
+                f.write("\n🏆 USUARIOS QUE MÁS REFERENCIAS RECIBEN (top 5):\n")
+                f.write("-" * 40 + "\n")
+                for i, (user, count) in enumerate(top_ref_recibidas, 1):
+                    f.write(f"  {i}. {user}: {count} referencias\n")
+            
+            f.write("\n")
+            
+            # PALABRAS MÁS UTILIZADAS
+            f.write("🔤 PALABRAS MÁS UTILIZADAS EN COMENTARIOS\n")
             f.write("-" * 40 + "\n")
             for i, (palabra, count) in enumerate(top_palabras[:10], 1):
-                f.write(f"{i:2}. {palabra:<15} - {count:3}\n")
+                f.write(f"  {i:2}. {palabra:<15} - {count:3} veces\n")
             f.write("\n")
             
+            # ARCHIVOS GENERADOS
             f.write("📁 ARCHIVOS GENERADOS\n")
             f.write("-" * 40 + "\n")
             f.write(f"• comentarios_{noticia_id}_completo.json\n")
             f.write(f"• comentarios_{noticia_id}_simplificado.json\n")
             f.write(f"• comentarios_{noticia_id}_estadisticas.txt\n")
             
+            # ERRORES DETECTADOS
             if errores:
-                f.write("\n⚠️ ERRORES\n")
+                f.write("\n⚠️ ERRORES DETECTADOS DURANTE LA EXTRACCIÓN\n")
                 f.write("-" * 40 + "\n")
-                for error in errores[:5]:
-                    f.write(f"• {error}\n")
+                for error in errores[:10]:
+                    f.write(f"  • {error}\n")
+                if len(errores) > 10:
+                    f.write(f"  • ... y {len(errores) - 10} errores más\n")
+            
+            # PIE DE PÁGINA
+            f.write("\n" + "=" * 80 + "\n")
+            f.write("Estadísticas generadas automáticamente por Comentia\n")
+            f.write("=" * 80 + "\n")
         
-        self.log(f"📊 Estadísticas: {archivo.name}")
+        self.log(f"📊 Estadísticas completas guardadas en: {archivo.name}")
+    
+    # Necesitamos tiempo de inicio para las estadísticas
+    _tiempo_inicio = time.time()
 
 
 # ========================
-# VENTANA PRINCIPAL (CORREGIDA)
+# VENTANA PRINCIPAL
 # ========================
 class ComentiaWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.directorio = None
         self.extraction_thread = None
-        self.config = Configuracion()
         self.init_ui()
         self.setup_drag_drop()
-        self.cargar_configuracion_guardada()
     
     def setup_drag_drop(self):
         self.setAcceptDrops(True)
@@ -388,21 +512,8 @@ class ComentiaWindow(QMainWindow):
             self.url_input.setText(url)
             self.status_label.setText("✅ URL cargada desde arrastre")
     
-    def cargar_configuracion_guardada(self):
-        ultimo_dir = self.config.obtener_ultimo_directorio()
-        if ultimo_dir and Path(ultimo_dir).exists():
-            self.directorio = Path(ultimo_dir)
-            self.dir_label.setText(str(self.directorio))
-            self.btn_extract.setEnabled(True)
-        
-        ultimas_urls = self.config.obtener_ultimas_urls()
-        if ultimas_urls:
-            completer = QCompleter(ultimas_urls)
-            completer.setCaseSensitivity(Qt.CaseInsensitive)
-            self.url_input.setCompleter(completer)
-    
     def init_ui(self):
-        self.setWindowTitle("📝 Comentia - Extractor de comentarios")
+        self.setWindowTitle("📝 Comentia - Extractor de comentarios de Marca.com")
         self.setMinimumSize(750, 650)
         self.resize(850, 700)
         
@@ -426,7 +537,7 @@ class ComentiaWindow(QMainWindow):
         
         main_layout.addSpacing(10)
         
-        # Grupo Directorio
+        # Directorio
         dir_group = QGroupBox("📁 Directorio de destino")
         dir_layout = QHBoxLayout(dir_group)
         
@@ -442,7 +553,7 @@ class ComentiaWindow(QMainWindow):
         
         main_layout.addWidget(dir_group)
         
-        # Grupo URL
+        # URL
         url_group = QGroupBox("🔗 URL de la noticia")
         url_layout = QVBoxLayout(url_group)
         
@@ -477,9 +588,22 @@ class ComentiaWindow(QMainWindow):
         self.progress_bar = QProgressBar()
         self.progress_bar.setVisible(False)
         self.progress_bar.setMinimumHeight(25)
+        self.progress_bar.setStyleSheet("""
+            QProgressBar {
+                border: 2px solid #555;
+                border-radius: 5px;
+                text-align: center;
+                color: white;
+                background: #3c3c3c;
+            }
+            QProgressBar::chunk {
+                background-color: #4CAF50;
+                border-radius: 3px;
+            }
+        """)
         main_layout.addWidget(self.progress_bar)
         
-        # Área de log
+        # Log
         log_group = QGroupBox("📄 Progreso")
         log_layout = QVBoxLayout(log_group)
         
@@ -542,10 +666,6 @@ class ComentiaWindow(QMainWindow):
             }
             QPushButton:hover { background-color: #45a049; }
             QPushButton:disabled { background-color: #666; }
-            QProgressBar { border: 2px solid #555; border-radius: 5px; text-align: center;
-                           color: white; background: #3c3c3c; }
-            QProgressBar::chunk { background-color: #4CAF50; border-radius: 3px; }
-            QTextEdit { background: #1e1e1e; color: #d4d4d4; border: 1px solid #555; border-radius: 5px; }
         """)
     
     def seleccionar_directorio(self):
@@ -555,7 +675,6 @@ class ComentiaWindow(QMainWindow):
         if directorio:
             self.directorio = Path(directorio)
             self.dir_label.setText(str(self.directorio))
-            self.config.guardar_ultimo_directorio(str(self.directorio))
             self.btn_extract.setEnabled(True)
             self.status_label.setText("✅ Carpeta seleccionada")
             self.log_area.append(f"✅ Carpeta seleccionada: {self.directorio}")
@@ -585,8 +704,6 @@ class ComentiaWindow(QMainWindow):
         self.log_area.clear()
         self.status_label.setText("⏳ Extrayendo comentarios...")
         self.status_label.setStyleSheet("color: #FF9800; padding: 5px; font-weight: bold;")
-        
-        self.config.guardar_ultimas_urls(url)
         
         self.extraction_thread = ExtractionThread(url, self.directorio)
         self.extraction_thread.log_signal.connect(self.agregar_log)
@@ -618,30 +735,45 @@ class ComentiaWindow(QMainWindow):
         if exito:
             self.status_label.setText(f"✅ ¡Éxito! {obtenidos}/{total} comentarios")
             self.status_label.setStyleSheet("color: #4CAF50; padding: 5px; font-weight: bold;")
+            
+            # Preguntar si quiere ver vista previa
+            if comentarios and len(comentarios) > 0:
+                reply = QMessageBox.question(
+                    self, "Vista previa",
+                    f"¿Quieres ver una vista previa de los {min(20, len(comentarios))} primeros comentarios?",
+                    QMessageBox.Yes | QMessageBox.No
+                )
+                if reply == QMessageBox.Yes:
+                    comentarios_lista = sorted(comentarios.values(), key=lambda x: x["order"])
+                    vista = VistaPreviaDialog(comentarios_lista, self)
+                    vista.exec_()
+            
             QMessageBox.information(
-                self, "Completado",
-                f"✅ Extracción finalizada\n\n{obtenidos}/{total} comentarios\n📁 {self.directorio / f'noticia_{noticia_id}'}"
+                self, "Operación completada",
+                f"✅ Extracción finalizada con éxito\n\n"
+                f"📊 Comentarios obtenidos: {obtenidos}/{total}\n"
+                f"📁 Ubicación: {self.directorio / f'noticia_{noticia_id}'}"
             )
         else:
-            self.status_label.setText(f"⚠️ {obtenidos}/{total} comentarios")
+            self.status_label.setText(f"⚠️ {obtenidos}/{total} comentarios - Con errores")
             self.status_label.setStyleSheet("color: #f44336; padding: 5px; font-weight: bold;")
-            msg = f"⚠️ Operación con errores\n\n{obtenidos}/{total} comentarios"
+            msg = f"⚠️ Operación con errores\n\n{obtenidos}/{total} comentarios obtenidos"
             if errores:
                 msg += f"\n\nErrores:\n" + "\n".join(errores[:5])
-            QMessageBox.warning(self, "Errores", msg)
+            QMessageBox.warning(self, "Operación con errores", msg)
     
     def extraccion_error(self, error: str):
         self.btn_extract.setEnabled(True)
         self.btn_select_dir.setEnabled(True)
         self.url_input.setEnabled(True)
         self.progress_bar.setVisible(False)
-        self.status_label.setText("❌ Error")
+        self.status_label.setText("❌ Error en la extracción")
         self.status_label.setStyleSheet("color: #f44336; padding: 5px; font-weight: bold;")
-        QMessageBox.critical(self, "Error", f"Error:\n\n{error}")
+        QMessageBox.critical(self, "Error", f"Error durante la extracción:\n\n{error}")
     
     def guardar_log(self):
         if not self.log_area.toPlainText():
-            QMessageBox.information(self, "Guardar", "No hay contenido")
+            QMessageBox.information(self, "Guardar log", "No hay contenido para guardar")
             return
         
         archivo, _ = QFileDialog.getSaveFileName(
