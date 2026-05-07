@@ -94,12 +94,12 @@ python -m comentia --cli
 
 #### 📦 Ejecutable independiente
 
-Descarga el ejecutable según tu S.O. desde **Releases**:
+Descarga el ejecutable según tu S.O. desde **[Releases](https://github.com/H0nt3/Comentia/releases)**:
 
 | Sistema Operativo | Archivo                  |
 | ----------------- | ------------------------ |
 | Windows           | Comentia-windows.exe     |
-| macOS             | Comentia-macoss.app      |
+| macOS             | Comentia-macos.app       |
 | Linux             | Comentia-linux           |
 
 ---
@@ -144,7 +144,7 @@ Descarga el ejecutable según tu S.O. desde **Releases**:
 
   **3.** Selecciona el archivo con las URLs.
 
-  **4.** Haz clic en **"Extraer todas las URLs**".
+  **4.** Haz clic en **"Extraer todas las URLs"**.
 
   **5.** Espera a que procese todas las noticias.
 
@@ -247,7 +247,7 @@ Incluye automáticamente:
 | ------------------------------------------------ | -------------------------------------------------------|
 | `ModuleNotFoundError: No module named PyQt5`     | Ejecuta en la terminal `pip install PyQt5`             |
 | La ventana de tkinter no se abre en Linux        | Ejecuta en la terminal `sudo apt install python3-tk`   |
-| La ventana no se abre en linux                   | Ejecuta en la terminal `sudo apt install python3-pyqt5 |
+| La ventana no se abre en linux                   | Ejecuta en la terminal `sudo apt install python3-pyqt5`|
 | Error de conexión                                | Revisar internet                                       |
 | No se encuentra el ID de la noticia              | Asegurate que has introducido la URL corrrecta         |
 | Permission denied en Linux                       | Ejecuta en la terminal `chmod +x Comentia_Linux` antes de ejecutar     |
