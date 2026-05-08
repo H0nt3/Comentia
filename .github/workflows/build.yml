@@ -1,76 +1,67 @@
-name: Crear Releases de Comentia
+name: Build and Release Comentia
 
 on:
   push:
     tags:
       - 'v*'
-  workflow_dispatch:
-
-permissions:
-  contents: write
 
 jobs:
-  # Compilar para Windows, Linux y macOS
-  build-python:
+  build:
+    name: Build for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
-          - target: windows
-            os: windows-latest
-            ext: .exe
-          - target: linux
-            os: ubuntu-latest
-            ext: ''
-          - target: macos
-            os: macos-latest
-            ext: ''
+          - os: windows-latest
+            suffix: .exe
+            artifact_name: Comentia-windows
+          - os: macos-latest
+            suffix: ''
+            artifact_name: Comentia-macos
+          - os: ubuntu-latest
+            suffix: ''
+            artifact_name: Comentia-linux
     steps:
       - uses: actions/checkout@v4
-      
-      - uses: actions/setup-python@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      
-      - name: Instalar dependencias
+
+      - name: Install dependencies
         run: |
-          pip install pyinstaller requests PyQt5
-      
-      - name: Compilar para ${{ matrix.target }}
+          pip install pyinstaller PyQt5 requests
+
+      - name: Build with PyInstaller
         run: |
           pyinstaller --onefile --windowed \
-            --name Comentia_${{ matrix.target }} \
+            --name ${{ matrix.artifact_name }} \
             --add-data "src/comentia:comentia" \
             --hidden-import PyQt5 \
             qt_app/main.py
-      
-      - name: Subir artefacto
+
+      - name: Upload artifact (Executable)
         uses: actions/upload-artifact@v4
         with:
-          name: Comentia-${{ matrix.target }}
-          path: dist/Comentia_${{ matrix.target }}${{ matrix.ext }}
+          name: ${{ matrix.artifact_name }}
+          path: dist/${{ matrix.artifact_name }}${{ matrix.suffix }}
 
-  # Crear la release
-  crear-release:
-    needs: build-python
+  release:
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - uses: actions/download-artifact@v4
         with:
-          path: archivos
-      
-      - name: Organizar archivos
-        run: |
-          mkdir release_files
-          find archivos -type f -name "Comentia-*" -exec cp {} release_files/ \;
-          ls -la release_files/
-      
-      - name: Publicar release
+          path: artifacts
+
+      - name: Display structure of downloaded files
+        run: ls -R artifacts
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: release_files/*
-          draft: false
-          prerelease: false
+          files: artifacts/**/*
           generate_release_notes: true

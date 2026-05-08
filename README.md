@@ -22,6 +22,7 @@
   * 📂 [Salida y archivos generados](#-salida-y-archivos-generados)
   * 📊 [Estadísticas](#-estadísticas)
   * 🛠️ [Estructura JSON](#-estructura-json)
+  * 🔍 [Visor de Comentarios](#-visor-de-comentarios)
   * ❓ [Preguntas Frecuentes (FAQ)](#-preguntas-frecuentes-faq)
   * 🐛 [Solución de problemas](#-solución-de-problemas)
   * 🤝 [Contribuir](#-contribuir)
@@ -56,6 +57,7 @@ Ideal para:
 | ⚡ **Modo CLI**                     | Uso desde terminal para automatización                                      |
 | 📦 **Multiplataforma**             | Compatible con Windows, macOS y Linux                                       |
 | 💾 **Configuración persistente**   | Recuerda tu última carpeta y URLs                                           |
+| 🔍 **Visor de comentarios**        | Visor interno de comentarios con capacidad de filtrado                      |
 
 ---
 <a name="requisitos-previos"></a>
@@ -148,6 +150,8 @@ Descarga el ejecutable según tu S.O. desde **[Releases](https://github.com/H0nt
 
   **5.** Espera a que procese todas las noticias.
 
+  💡 **Nota:** El archivo puede tener formato UTF-8 con o sin BOM. Comentia lo maneja automáticamente.
+
  ---
 <a name="salida-y-archivos-generados"></a>
 ### 📂 Salida y archivos generados
@@ -157,7 +161,8 @@ En la carpeta que seleccionaste, apareceran estos archivos:
 noticia_123456789/
 ├── comentarios_123456789_completo.json       # Aqui se guardan todos los comentarios y los metadatos (formato completo)
 ├── comentarios_123456789_simplificado.json   # Versión simplificada del archivo anterior (solo texto, sin metadatos)
-└── comentarios_123456789_estadisticas.txt    # Informe de estadisticas
+|── comentarios_123456789_estadisticas.txt    # Informe de estadisticas
+└── logs_123456789_sesion.txt                 # Logs de la sesión
 ```
 
 ---
@@ -165,12 +170,14 @@ noticia_123456789/
 ### 📊 Estadísticas
 
 Incluye automáticamente:
-
-  * 📈 Total de comentarios esperados y obtenidos 
-  * 👥 Top 10 de usuarios más activos
+  * 📈 Total de comentarios esperados y obtenidos
+  * 👥 Top 10 de usuarios más activos*
   * 📝 Longitud promedio de los comentarios
   * 🔤 Palabras más frecuentes
   * 🗓️ Actividad por fechas
+  * ⏰ Hora con más comentarios
+  * 🏆 Usuarios que más referencias reciben
+  * 📁 Lista de archivos generados (incluye logs de sesión)
   * ✅ Ratio de éxito de extracción
   * 🚨 Lista de errores (si los hubo)
 ---
@@ -212,6 +219,20 @@ Incluye automáticamente:
   }
 ]
 ```
+
+---
+<a name="visor-comentarios"></a>
+## 🔍 Visor de comentarios
+
+Después de cada extracción, Comentia te preguntará si quieres abrir el **visor de comentarios**.
+
+El visor te permite:
+
+- 🔍 **Buscar** comentarios por usuario, palabra clave o fecha
+- 📄 **Ver todos** los comentarios extraídos (no solo los primeros 20)
+- 📊 **Contador** de resultados filtrados
+
+Es ideal para analizar rápidamente los comentarios sin necesidad de abrir el archivo JSON.
 
 ---
 <a name="preguntas-frecuentes-faq"></a>
