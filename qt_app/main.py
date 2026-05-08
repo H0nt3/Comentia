@@ -39,21 +39,20 @@ DELAY_ENTRE_PAGINAS = 0.3
 MAX_REINTENTOS = 3
 TIMEOUT = 15
 
-# Iconos compatibles (sin emojis dependientes del sistema)
+# Iconos compatibles (texto plano, sin emojis que fallen)
 ICONOS = {
-    "app": "📝",
-    "extraer": "▶",
-    "carpeta": "📂",
-    "url": "🌐",
-    "ok": "✓",
-    "error": "✗",
-    "pagina": "📄",
-    "guardar": "💾",
-    "limpiar": "🗑",
-    "pegar": "📋",
-    "tema": "🎨",
-    "lotes": "📚",
-    "buscar": "🔍"
+    "app": "[Comentia]",
+    "extraer": ">>",
+    "carpeta": "[Carpeta]",
+    "url": "[URL]",
+    "ok": "[OK]",
+    "error": "[ERROR]",
+    "pagina": "[Pagina]",
+    "guardar": "[Guardar]",
+    "limpiar": "[Limpiar]",
+    "pegar": "[Pegar]",
+    "lotes": "[Lotes]",
+    "buscar": "[Buscar]"
 }
 
 
